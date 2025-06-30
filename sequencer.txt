@@ -6,10 +6,14 @@ https://www.youtube.com/watch?v=ly5BhGOt2vE
 
 Basic Code: (this is a long one)
 
+Note: to enter line 30 in VICE emulator in Windows:
+Shift-Home gets the inverted heart (clear screen)
+30 PRINT"<Shift-Home>LIST80-89"
+
 
 10 READV:IFV>=0THENPOKEA,V:A=A+1:GOTO10
 20 IFV<-1THENA=-V*256:GOT010
-30 PRINT CHR$(147)
+30 PRINT"<Shift-Home>LIST80-89"
 80 REM +---+---+---+---+---+---+---+---
 81 REM :   :   :   :   :   :   :   :   
 82 REM :   :   :   :   :   :   :   :   
