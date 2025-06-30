@@ -1,0 +1,99 @@
+# SID - sound chip examples
+
+`but first this snippet from https://10print.org about the SID chip`
+
+## THE SID CHIP
+
+While the features of the Commodore 64 that made 10 PRINT possible are chiefly
+BASIC, PETSCII, and the VIC-II graphics chip, it would be a disservice to the Commodore 64 to ignore another component that made the computer such a critical
+and popular success: the MOS Technology 6581 Sound Interface Device (SID) chip.
+
+Designed by Bob Yannes, the SID chip was a remarkable advance for its time. A
+three-voice synthesizer with variable pitch, amplitude, and harmonic tone controls,
+the SID made the Commodore a formidable music maker and game machine. 
+
+With the SID, programmers could easily specify waveforms such as sawtooth or noise, as
+well as independently manage the attack, decay, sustain, and release times of the
+three oscillators (providing the three different voices) in the chip. 
+
+Furthermore, the
+three voices could be used in conjunction with each other to create complex melodies, harmonies, and rhythms.
+
+Poking SID memory location 54299 produces numbers from 0 to 255, while the waveform controls the sequence of those numbers. 
+
+For example, a triangle waveform yields a cycling through every number from 0 to 255 and back down to 0, the rate controlled by the oscillator’s frequency setting (Nelson 1987, 24). 
+
+...the noise waveform produces random numbers, with the rate of the random number
+generation determined by the frequency of voice 3.
+
+
+
+# Examples
+
+generating pseudo-random tones
+(Lowercase is helps for copy/pasting into VICE)
+NOTE: Funny/weird thing about this. breaking out of the program can leave you stuck on a note held playing which can be noisy, unless you happen to break during the pause when there is no sound playing then you will get silence.
+
+10 s=54272 : poke s+24,15 : poke s+5,190 : poke s+6,248
+20 a(0)=17 : a(1)=37 : a(2)=21 : a(3)=76
+30 q=int(.5+rnd(1)) : poke s+1,a(q*2) : poke s,a(q*2+1)
+40 poke s+4,17 : for t=1 to 75 : next
+50 poke s+4,16 : for t=1 to 150 : next
+60 goto 30
+
+
+
+I LOVE THIS ONE - completely random sounds
+my favorite so far.
+
+Finally, another way to go about probing the capabilities of complex
+chips, including the Commodore 64’s sound chip, the SID, is to simply write
+random values to their registers and attend to the result. Here is such a
+program for the SID, one which produces random sounds:
+
+10 POKE 54272 + (0*TI+(RND(1)*25)),(RND(1)*256)AND255:GOTO 10
+
+
+
+## Iftkryo - (Linus Akesson) for this AWESOME music sequencer
+
+https://www.linusakesson.net/
+
+https://www.youtube.com/watch?v=ly5BhGOt2vE
+
+Basic Code: (this is a long one)
+
+
+10 READV:IFV>=0THENPOKEA,V:A=A+1:GOTO10
+20 IFV<-1THENA=-V*256:GOT010
+30 PRINT CHR$(147)
+80 REM +---+---+---+---+---+---+---+---
+81 REM :   :   :   :   :   :   :   :   
+82 REM :   :   :   :   :   :   :   :   
+83 REM :   :   :   :   :   :   :   :   
+84 REM  
+85 REM   B D   H I K   N     S U W   Z
+86 REM  A C E F H J L M O Q R T V X Y
+90 SYS192*256
+99 LIST 80-89
+100 DATA-212
+110 DATA0,4,0,0,0,0,224   : REM 4 is frequency (try +/-)
+120 DATA0,0,0,0,0,0,0
+130 DATA0,0,0,0,0,0,0
+140 DATA0,0,0,15
+200 DATA-192
+210 DATA169,127,141,13,220
+220 DATA169,0,141,20,3
+230 DATA169,193,141,21,3
+240 DATA169,1,141,26,208,141,18,208
+250 DATA169,33,141,4,212
+290 DATA96
+300 DATA-193
+310 DATA169,1,141,32,208,141,25,208
+320 DATA173,162,0,74,74,74,168 : REM utilize chromatic scale
+324 DATA169,14,153,86,216,141,118,216
+325 DATA169,1,153,87,216
+330 DATA185,70,194,141,0,212   : REM index lookup (low byte)
+340 DATA185,70,195,141,1,212   : REM index lookup (high byte)
+390 DATA169,14,141,32,208,76,49,234
+999 DATA-1

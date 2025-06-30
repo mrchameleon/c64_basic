@@ -1,0 +1,248 @@
+examples taken from the book "10 PRINT"
+https://10print.org/
+
+
+diagonal maze
+10 PRINT CHR$(205.5+RND(1)); : GOTO 10
+
+the semicolon is important!
+10 PRINT CHR$(205.5+RND(1)) : GOTO 10
+
+diagonal maze with longer paths
+10 PRINT CHR$(205.25+RND(1)); : GOTO 10
+
+horizontal/vertical maze
+10 PRINT CHR$(198.5+RND(1)); : GOTO 10
+
+
+
+variations:
+
+int function
+10 PRINT CHR$(204+INT(RND(1)+.5)*3); : GOTO 10
+
+no int function
+10 PRINT CHR$(204+RND(1)+.5)*3; : GOTO 10
+
+pixely
+PRINT CHR$(181+(INT(RND(1)+.5)*3)+(INT(RND(1)+.5))); : GOTO 10
+
+this one is cool
+10 PRINT CHR$(181+(INT(RND(1)+.5)*3)); : GOTO 10
+
+
+# \ only
+10 PRINT CHR$(205); : GOTO 10
+
+
+# \/\/\/\ GET WAVY
+ 10 PRINT CHR$(205)CHR$(206); : GOTO 10
+
+
+# poke memory locations to add the characters one by one in random position on screen
+10 POKE 1024+RND(1)*1000,77.5+RND(1) : GOTO 10
+
+
+# ice storm
+10 POKE 1024+RND(1)*1000,78: GOTO 10
+
+
+# not working yet in VICE
+
+# BURROW  (tricky to get working on VICE?)
+Press "  then CTRL-9 (reverse on), or CTRL-0
+CTRL+0 is RVS OFF, while CTRL+9 is RVS ON.
+
+1a$="[up][down][left][right]":printmid$(a$,rnd(.5)*4+1,1)"
+*[left]";:fori=1to30:next:print"[rvs on][space][left]";:goto1
+
+# similar to above, randomness in user input (april fools joke, seems normal except randomly inserting wrong char)
+
+10 poke207,0:poke204,0:wait198,1:geta$: print"{ctrl rvs off}"
+chr$(asc(a$)+1.1*rnd(0));:goto 10
+
+
+
+MAZE WALKER (very cool)
+
+10 rem produce a stable maze
+20 print chr$(147)
+30 for i=1024 to 2023
+40 poke i,77.5+rnd(1)
+50 next i
+100 rem set initial x and y walker location and direction
+110 rem direction is either 0 left, 1 right, 2 up, 3 down
+120 x=int(rnd(0) * 39) : xold=-1
+130 y=int(rnd(0) * 24) : yold=-1
+140 dir=int(rnd(0) * 3)
+rem maze walker in basic {249}
+150 wold=-1
+160 gosub 500
+200 rem start walking maze using rules for bouncing off walls
+210 rem compute new location based on initial direction
+220 if dir=0 then x=x - 1 : goto 270
+230 if dir=1 then x=x + 1 : goto 270
+240 if dir=2 then y=y - 1 : goto 270
+250 if dir=3 then y=y + 1
+260 rem determine if the walker is off the screen
+270 if x >= 0 and x <= 39 and y >= 0 and y <= 24 then goto 300
+280 gosub 600 : gosub 650
+290 goto 10
+300 rem bounce off wall as function of direction
+310 rem 77 is \, 78 is /
+320 wall=peek(1024 + x + (y * 40))
+330 if wall=78 then goto 380
+340 if dir=0 then dir=2 : goto 420
+350 if dir=1 then dir=3 : goto 420
+360 if dir=2 then dir=0 : goto 420
+370 if dir=3 then dir=1 : goto 420
+380 if dir=0 then dir=3 : goto 420
+390 if dir=1 then dir=2 : goto 420
+400 if dir=2 then dir=1 : goto 420
+410 if dir=3 then dir=0
+420 goto 160
+500 rem draw walker, restoring previous wall character
+510 gosub 600
+520 xold=x : yold=y
+530 m=1024 + x + (y * 40)
+540 wold=peek(m)
+550 c=55296 + x + (y * 40)
+560 poke c, 1 : poke m, 87
+570 gosub 650
+580 return
+600 rem restore wall at previous walker location
+610 if xold=-1 then goto 630
+620 poke 1024 + xold + (yold * 40), wold
+630 return
+650 rem pause for 500 loops
+660 for i=1 to 500 : next i
+670 return
+
+
+
+
+# user controlled - walk the maze with arrow keys
+
+10 REM PRODUCE A STABLE MAZE
+20 PRINT CHR$(147)
+30 FOR I=1024 TO 2023
+40 POKE I,77.5+RND(1)
+50 NEXT I
+100 REM SET INITIAL X AND Y WALKER LOCATION AND DIRECTION
+110 REM DIRECTION IS EITHER 0 LEFT, 1 RIGHT, 2 UP, 3 DOWN
+120 X=INT(RND(0) * 39) : XOLD=-1
+130 Y=INT(RND(0) * 24) : YOLD=-1
+140 DIR=INT(RND(0) * 3)
+150 WALL=-1
+160 GOSUB 500
+200 REM WAIT FOR LEGAL MOVE GIVEN LOCATION AND DIRECTION
+210 GET A$ : IF A$="" GOTO 210
+220 IF A$=" " THEN GOSUB 600 : GOTO 120 : REM HYPERSPACE
+230 REM 77=\, 78=/ 0 LEFT, 1 RIGHT, 2 UP, 3 DOWN
+240 IF WALL=78 THEN GOTO 310
+245 REM UP
+250 IF (DIR=0 OR DIR=3) AND ASC(A$)=145 THEN DIR=2 : GOTO 400
+255 REM RIGHT
+260 IF (DIR=0 OR DIR=3) AND ASC(A$)=29 THEN DIR=1 : GOTO 400
+265 REM DOWN
+270 IF (DIR=1 OR DIR=2) AND ASC(A$)=17 THEN DIR=3 : GOTO 400
+285 REM LEFT
+290 IF (DIR=1 OR DIR=2) AND ASC(A$)=157 THEN DIR=0 : GOTO 400
+300 GOTO 200
+310 REM DOWN
+320 IF (DIR=0 OR DIR=2) AND ASC(A$)=17 THEN DIR=3 : GOTO 400
+330 REM RIGHT
+340 IF (DIR=0 OR DIR=2) AND ASC(A$)=29 THEN DIR=1 : GOTO 400
+350 REM UP
+360 IF (DIR=1 OR DIR=3) AND ASC(A$)=145 THEN DIR=2 : GOTO 400
+370 REM LEFT
+380 IF (DIR=1 OR DIR=3) AND ASC(A$)=157 THEN DIR=0 : GOTO 400
+390 GOTO 200
+400 IF DIR=0 THEN X=X - 1 : GOTO 450
+410 IF DIR=1 THEN X=X + 1 : GOTO 450
+420 IF DIR=2 THEN Y=Y - 1 : GOTO 450
+430 IF DIR=3 THEN Y=Y + 1
+450 REM DETERMINE IF THE WALKER IS OFF THE SCREEN
+460 IF X >= 0 AND X <= 39 AND Y >= 0 AND Y <= 24 THEN GOTO 160
+470 GOSUB 600
+480 GOTO 10
+500 REM DRAW WALKER, RESTORING PREVIOUS WALL CHARACTER
+510 GOSUB 600
+520 XOLD=X : YOLD=Y
+530 M=1024 + X + (Y * 40)
+540 WALL=PEEK(M)
+550 C=55296 + X + (Y * 40)
+560 POKE C, 1 : POKE M, 87
+570 RETURN
+600 REM RESTORE WALL AT PREVIOUS WALKER LOCATION
+610 IF XOLD=-1 THEN GOTO 630
+620 POKE 1024 + XOLD + (YOLD * 40), WALL
+630 RETURN
+
+
+
+
+This modification will test if the maze is solvable or not
+
+10 DIM B1(3),B2(3) : REM 'BOUNCE' ARRAYS
+20 B1(0)=2 : B1(1)=3 : B1(2)=0 : B1(3)=1
+30 B2(0)=3 : B2(1)=2 : B2(2)=1 : B2(3)=0
+40 REM PRODUCE A STABLE MAZE
+50 PRINT CHR$(147)
+60 FOR I=1024 TO 2023
+70 POKE I,77.5+RND(1)
+80 NEXT I
+90 REM TEST: SOLUTIONS MUST BE PATHS ACROSS WIDTH OR HEIGHT
+100 FOR S=0 TO 24
+110 X=-1 : Y=S : DIR=1 : XOLD=-1 : YOLD=-1 : WOLD=-1
+120 SX=X : SY=Y: SD=DIR
+130 GOSUB 410 : GOSUB 520
+140 IF X > 39 THEN GOTO 290 : REM FOUND A SOLUTION
+150 IF X < 0 OR Y < 0 OR Y > 24 THEN GOTO 180
+160 GOSUB 610
+170 GOTO 130
+180 GOSUB 710 : NEXT S
+190 FOR S=0 TO 39
+200 X=S : Y=-1 : DIR=3 : XOLD=-1 : YOLD=-1 : WOLD=-1
+210 SX=X : SY=Y : SD=DIR
+220 GOSUB 410 : GOSUB 520
+230 IF Y > 24 THEN GOTO 290 : REM FOUND A SOLUTION
+240 IF X < 0 OR Y < 0 OR X > 39 THEN GOTO 270
+250 GOSUB 610
+260 GOTO 220
+270 GOSUB 710 : NEXT S
+280 GOTO 50
+290 FOR I=55296 TO 56295 : POKE I,14 : NEXT I
+300 X=SX : Y=SY : XOLD=-1 : YOLD=-1 : WOLD=-1 : DIR=SD
+310 GOSUB 410 : GOSUB 520 : GOSUB 610
+320 REM DETERMINE IF WE’RE OFF THE SCREEN
+330 IF X >= 0 AND X <= 39 AND Y >= 0 AND Y <= 24 THEN GOTO 360
+340 GOSUB 710 : GOSUB 800
+350 GOTO 50
+360 GOTO 310
+400 REM COMPUTE NEW LOCATION BASED ON INITIAL DIRECTION
+410 IF DIR=0 THEN X=X - 1 : GOTO 450
+420 IF DIR=1 THEN X=X + 1 : GOTO 450
+430 IF DIR=2 THEN Y=Y - 1 : GOTO 450
+440 IF DIR=3 THEN Y=Y + 1
+450 RETURN
+500 REM BOUNCE OFF CURRENT WALL AS FUNCTION OF DIRECTION
+510 REM 77=\, 78=/
+520 WALL=PEEK(1024 + X + (Y * 40))
+530 IF WALL=77 THEN DIR=B1(DIR) : GOTO 550
+540 IF WALL=78 THEN DIR=B2(DIR)
+550 RETURN
+600 REM DRAW WALKER, RESTORING PREVIOUS WALL CHARACTER
+610 GOSUB 710
+620 XOLD=X : YOLD=Y : I=X + (Y * 40)
+630 M=1024 + I
+640 WOLD=PEEK(M)
+650 C=55296 + I
+660 POKE C, 1 : POKE M, 87
+670 RETURN
+700 REM RESTORE WALL AT PREVIOUS WALKER LOCATION
+710 IF XOLD=-1 THEN GOTO 730
+720 POKE 1024 + XOLD + (YOLD * 40), WOLD
+730 RETURN
+800 FOR I=1 TO 2000 : NEXT I
+810 RETURN

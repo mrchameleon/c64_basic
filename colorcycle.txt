@@ -1,0 +1,37 @@
+10 FOR C=0 TO 15
+20 POKE 53280,C          : REM border color
+30 POKE 53281,(15 - C)   : REM background color (inverse)
+40 POKE 646, C           : REM text color (VIC-II register $D800 + 6 = 646 decimal)
+50 FOR D=1 TO 200: NEXT D : REM small delay loop
+60 NEXT C
+70 GOTO 10
+
+: REM 53280 = border color register
+: REM 53281 = background color register
+: REM 646 = text color register (changes the default text color)
+: REM The loop cycles colors 0 to 15.
+: REM The background is set to the inverse color (15 - C) for contrast.
+: REM Delay loop (FOR D=1 TO 200) controls speed; increase for slower cycling.
+: REM GOTO 10 makes the cycle repeat forever.
+
+
+10 REM Define presets as arrays of (border, background, text)
+20 BORDER$ = "0,1,2,4,6,7,9,14"
+30 BACK$   = "15,14,13,11,9,8,0,0"
+40 TEXT$   = "15,0,7,14,7,7,15,15"
+50
+60 REM Pick a random preset index 0 to 7
+70 RANDOMIZE
+80 I = INT(RND(1)*8)
+90
+100 BORDER = VAL(MID$(BORDER$, I*2+1, 1))
+110 BACK = VAL(MID$(BACK$, I*2+1, 1))
+120 TEXT = VAL(MID$(TEXT$, I*2+1, 2))
+130
+140 POKE 53280, BORDER   : REM border color
+150 POKE 53281, BACK     : REM background color
+160 POKE 646, TEXT       : REM text color
+170
+180 PRINT "Border color: "; BORDER
+190 PRINT "Background color: "; BACK
+200 PRINT "Text color: "; TEXT
